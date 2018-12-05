@@ -16,6 +16,13 @@ class Database():
 		self.overall_dict[key] = value
 		print("OVERALL DICT: ", self.overall_dict)
 
+	def get_value(self, key):
+		# OVERALL DICT:  {b'somekey': b'somevalue'}
+		print("GET VALUE: ", self.overall_dict.get(key))
+
+		return self.overall_dict.get(key)
+
+
 
 # handles incoming request from the browser
 class RequestHandler(BaseHTTPRequestHandler):
@@ -32,6 +39,10 @@ class RequestHandler(BaseHTTPRequestHandler):
 		if path == "set":
 			# method for adding current query dict into overall dict
 			self.set_query(query)
+
+		elif path == "get":
+			# method for getting stored value and displaying it
+			self.get_query(query)
 
 		
 
@@ -57,9 +68,22 @@ class RequestHandler(BaseHTTPRequestHandler):
 			print("KEY: ", key)
 			print("VALUE: ", dict[key][0])
 
-	
+			self.wfile.write(bytes("KEY: " + key, "utf-8") + bytes(" VALUE: " + dict[key][0], "utf-8"))
 
-# def run():
+	# method for finding and returning value based on key
+	def get_query(self, dict):
+		self.send_response(200)
+		self.send_header("Content-type", "text/plain")
+		self.end_headers()
+
+		for key in dict:
+			# QUERY:  {'key': ['somekey']}
+			query_key = bytes(dict[key][0], "utf-8")
+			query_value = database.get_value(query_key)
+
+
+			self.wfile.write(query_value)
+
 
 database = Database()
 # create incoming web server and define the handler to manage the incoming request
@@ -73,8 +97,3 @@ try:
 except KeyboardInterrupt:
 	server.server_close()
 
-	
-
-
-# if __name__ == '__main__':
-# 	run()
